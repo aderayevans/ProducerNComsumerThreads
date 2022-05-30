@@ -12,6 +12,7 @@ public:
     Process(std::string);
     void print();
     void start();
+    void quit();
     void insert();
     void extract();
     void insert(std::string);
@@ -23,9 +24,11 @@ private:
     std::vector<std::string> sharedList;
     int current_size;
     std::string filename;
-    Producer producer;
-    Consumer consumer;
-    // std::condition_variable convar;
+    Producer *producer;
+    Consumer *consumer;
+    std::mutex mtx;
+    std::condition_variable convar;
+    int LISTSIZE;
 };
 
 #endif

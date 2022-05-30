@@ -43,6 +43,7 @@ void start()
         switch(hashTheChoice(menuInput))
         {
             case menuChoice::quit:
+                proc.quit();
                 exit(0);
             case menuChoice::help:
                 printMenu();

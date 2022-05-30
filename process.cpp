@@ -1,35 +1,41 @@
 #include <iostream>
 #include <algorithm>
 #include <thread>
-#include <future>
-#include <condition_variable>
 #include <mutex>
+#include <condition_variable>
 
 #include "process.hpp"
 // #include "handlefile.hpp"
 
-typedef std::string LinkedList;
-const int LISTSIZE = 5;
+// typedef std::string LinkedList;
+// const int LISTSIZE = 5;
 
 Process::Process(std::string filename)
-    : filename(filename), current_size(0)
 {
+    LISTSIZE = 5;
+    current_size = 0;
     // read(filename);
     // spawnThreads();
-    producer = Producer();
-    consumer = Consumer();
+    producer = new Producer(LISTSIZE);
+    consumer = new Consumer(LISTSIZE);
 
     start();
 }
 
+void Process::quit()
+{
+    producer->stop();
+    consumer->stop();
+}
+
 void Process::start()
 {
-    std::thread producer_thread(&Producer::insert, &producer, 
-                                    std::ref(sharedList), LISTSIZE, 
-                                    std::ref(current_size));
-    std::thread consumer_thread(&Consumer::extract, &consumer, 
-                                    std::ref(sharedList), LISTSIZE, 
-                                    std::ref(current_size));
+    std::thread producer_thread(&Producer::insert, producer, 
+                                    std::ref(sharedList), std::ref(current_size),
+                                    std::ref(mtx), std::ref(convar));
+    std::thread consumer_thread(&Consumer::extract, consumer, 
+                                    std::ref(sharedList), std::ref(current_size),
+                                    std::ref(mtx), std::ref(convar));
 
     std::cout << "Process started" << std::endl;
     std::cout << current_size << std::endl;
@@ -71,14 +77,14 @@ void Process::insert(std::string job)
 {
     // HandleFile::write_file<LinkedList>(filename, WRITER_MODE::CLEAR);
 
-    producer.add_queue(job);
+    producer->add_queue(job);
 }
 
 void Process::extract(std::string job)
 {
     // HandleFile::write_file<LinkedList>(filename, WRITER_MODE::CLEAR);
 
-    consumer.add_queue(job);
+    consumer->add_queue(job);
 }
 
 void Process::print()
