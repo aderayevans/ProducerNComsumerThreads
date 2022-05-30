@@ -2,6 +2,7 @@
 #define PROCESS_HPP
 
 #include <vector>
+#include <string>
 #include "producer.hpp"
 #include "consumer.hpp"
 

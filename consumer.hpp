@@ -1,8 +1,10 @@
 #ifndef CONSUMER_HPP
 #define CONSUMER_HPP
+
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <queue>
 
 class Consumer 
 {
@@ -12,7 +14,7 @@ public:
 
     void add_queue(std::string val)
     {
-        queue.push_back(val);
+        queue.push(val);
     }
 
     void extract(std::vector<std::string>& sharedList, int LISTSIZE, int& current_size)
@@ -23,11 +25,12 @@ public:
         {
             sharedList.erase(it);
             current_size--;
+            queue.pop();
         }
         else std::cout << "There is no " + temp + " in sharedList\n";
     }
 
-    std::vector<std::string> queue;
+    std::queue<std::string> queue;
 };
 
 #endif 

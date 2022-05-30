@@ -24,10 +24,12 @@ Process::Process(std::string filename)
 
 void Process::start()
 {
-    std::thread producer_thread(&producer.insert, std::ref(sharedList), 
-                                    LISTSIZE, std::ref(current_size));
-    std::thread consumer_thread(&consumer.insert, std::ref(sharedList), 
-                                    LISTSIZE, std::ref(current_size));
+    std::thread producer_thread(&Producer::insert, &producer, 
+                                    std::ref(sharedList), LISTSIZE, 
+                                    std::ref(current_size));
+    std::thread consumer_thread(&Consumer::extract, &consumer, 
+                                    std::ref(sharedList), LISTSIZE, 
+                                    std::ref(current_size));
 
     std::cout << "Process started" << std::endl;
     std::cout << current_size << std::endl;
