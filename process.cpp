@@ -5,31 +5,31 @@
 #include <condition_variable>
 
 #include "process.hpp"
+#include "menuchoice.hpp"
 // #include "handlefile.hpp"
 
-// typedef std::string LinkedList;
-// const int LISTSIZE = 5;
+const int LISTSIZE = 5;
 
 Process::Process(std::string filename)
+    : filename(filename)
 {
-    LISTSIZE = 5;
     current_size = 0;
+    max_size = LISTSIZE;
     // read(filename);
     // spawnThreads();
-    producer = new Producer(LISTSIZE);
-    consumer = new Consumer(LISTSIZE);
+    producer = new Producer(max_size);
+    consumer = new Consumer(max_size);
 
     start();
 }
 
-void Process::quit()
-{
-    producer->stop();
-    consumer->stop();
-}
-
 void Process::start()
 {
+    std::string menuInput;
+
+    printMenu();
+
+
     std::thread producer_thread(&Producer::insert, producer, 
                                     std::ref(sharedList), std::ref(current_size),
                                     std::ref(mtx), std::ref(convar));
@@ -37,8 +37,37 @@ void Process::start()
                                     std::ref(sharedList), std::ref(current_size),
                                     std::ref(mtx), std::ref(convar));
 
-    std::cout << "Process started" << std::endl;
-    std::cout << current_size << std::endl;
+    while (true)
+    {
+        std::cout << "> ";
+        std::cin >> menuInput;
+
+        switch(hashTheChoice(menuInput))
+        {
+            case menuChoice::quit:
+                quit();
+                exit(0);
+            case menuChoice::help:
+                printMenu();
+                break;
+            case menuChoice::print:
+                print();
+                break;
+            case menuChoice::insert:
+                insert();
+                break;
+            case menuChoice::extract:
+                extract();
+                break;
+            case menuChoice::save:
+                save();
+                break;
+            case menuChoice::wrong:
+                std::cout << "Syntax Error !!!" << std::endl;
+                printMenu();
+                break;
+        }
+    }
 
     producer_thread.join();
     consumer_thread.join();
@@ -46,31 +75,40 @@ void Process::start()
 
 void Process::insert()
 {
-    if (current_size == LISTSIZE)
-    {
-        //waiting
-        std::cout << "List is full" << std::endl;
-        return;
-    }
+    // if (current_size == max_size)
+    // {
+    //     //waiting
+    //     std::cout << "List is full" << std::endl;
+    //     return;
+    // }
     std::string str;
     std::cout << "Input: ";
     std::cin >> str;
 
     insert(str);
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        convar.notify_all();
+    }
 }
 
 void Process::extract()
 {
-    if (current_size == 0)
-    {
-        //waiting
-        std::cout << "List is empty" << std::endl;
-        return;
-    }
+    // if (current_size == 0)
+    // {
+    //     //waiting
+    //     std::cout << "List is empty" << std::endl;
+    //     return;
+    // }
     std::string str;
     std::cout << "Input: ";
     std::cin >> str;
+
     extract(str);
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        convar.notify_all();
+    }
 }
 
 void Process::insert(std::string job)
@@ -89,6 +127,7 @@ void Process::extract(std::string job)
 
 void Process::print()
 {
+    std::cout << "List size: " << sharedList.size() << std::endl;
     for (auto &val:sharedList)
         std::cout << val << std::endl;
 }
@@ -101,4 +140,10 @@ void Process::read()
 void Process::save()
 {
     // HandleFile::write_file<LinkedList>(filename, WRITER_MODE::TRUNCATE);
+}
+
+void Process::quit()
+{
+    producer->stop();
+    consumer->stop();
 }

@@ -28,7 +28,7 @@ private:
     Consumer *consumer;
     std::mutex mtx;
     std::condition_variable convar;
-    int LISTSIZE;
+    int max_size;
 };
 
 #endif

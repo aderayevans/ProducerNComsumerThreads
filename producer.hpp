@@ -12,10 +12,8 @@
 class Producer
 {
 public:
-
-
-    Producer(int LISTSIZE)
-        : LISTSIZE(LISTSIZE)
+    Producer(int max_size)
+        : max_size(max_size)
     {
     }
 
@@ -34,23 +32,24 @@ public:
         std::mutex& mtx,
         std::condition_variable& convar)
     {
+        std::unique_lock <std::mutex> lock(mtx);
         while (!exit_thread_flag)
         {
-            std::unique_lock<std::mutex> lock(mtx);
-            while (queue.size() == 0 || sharedList.size() == LISTSIZE)
+            while (queue.empty() || current_size == max_size)
             {
-                std::cout << "Waiting .. \n";
                 convar.wait(lock);
             }
+
             sharedList.push_back(queue.front());
             queue.pop();
             current_size++;
+
             convar.notify_all();
         }
     }
 
 
-    int LISTSIZE;
+    int max_size;
     std::atomic<bool> exit_thread_flag{false};
     std::queue<std::string> queue;
 };

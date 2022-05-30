@@ -13,12 +13,8 @@
 class Consumer 
 {
 public:
-    Consumer()
-    {   
-    }
-
-    Consumer(int LISTSIZE)
-        : LISTSIZE(LISTSIZE)
+    Consumer(int max_size)
+        : max_size(max_size)
     {
     }
 
@@ -37,28 +33,30 @@ public:
         std::mutex& mtx,
         std::condition_variable& convar)
     {
+        std::unique_lock <std::mutex> lock(mtx);
         while (!exit_thread_flag)
         {
-            std::unique_lock<std::mutex> lock(mtx);
-            while (queue.size() == 0 || LISTSIZE == 0)
+            while (queue.empty() || current_size == 0)
             {
-                std::cout << "Waiting .. \n";
                 convar.wait(lock);
             }
+            
             std::string temp = queue.front();
-            auto it = find(sharedList.begin(), sharedList.end(), temp);
-            if (it != sharedList.end())
+            // auto it = find(sharedList.begin(), sharedList.end(), temp);
+            // if (it != sharedList.end())
             {
-                sharedList.erase(it);
+                // sharedList.erase(it);
+                sharedList.erase(sharedList.begin());
                 current_size--;
-                queue.pop();
             }
-            else std::cout << "There is no " + temp + " in sharedList\n";
+            // else std::cout << "There is no " + temp + " in sharedList\n";
+            queue.pop();
+
             convar.notify_all();
         }
     }
 
-    int LISTSIZE;
+    int max_size;
     std::atomic<bool> exit_thread_flag{false};
     std::queue<std::string> queue;
 };

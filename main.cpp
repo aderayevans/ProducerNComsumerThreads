@@ -14,58 +14,18 @@ Using Condition Variable to control the insertion
 const std::string filename = "sharedList.txt";
 
 #include "process.hpp"
-#include "menuchoice.hpp"
-
-void start();
-void printMenu();
 
 int main(int argc, char* argv[])
 {
-    start();
+    Process proc = Process(filename);
+    proc.start();
 
     return 0;
 }
 
 void start()
 {
-    std::string menuInput;
 
-    printMenu();
-
-    Process proc = Process(filename);
-
-
-    while (true)
-    {
-        std::cout << "> ";
-        std::cin >> menuInput;
-
-        switch(hashTheChoice(menuInput))
-        {
-            case menuChoice::quit:
-                proc.quit();
-                exit(0);
-            case menuChoice::help:
-                printMenu();
-                break;
-            case menuChoice::print:
-                proc.print();
-                break;
-            case menuChoice::insert:
-                proc.insert();
-                break;
-            case menuChoice::extract:
-                proc.extract();
-                break;
-            case menuChoice::save:
-                proc.save();
-                break;
-            case menuChoice::wrong:
-                std::cout << "Syntax Error !!!" << std::endl;
-                printMenu();
-                break;
-        }
-    }
 }
 
 
