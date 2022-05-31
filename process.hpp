@@ -5,6 +5,7 @@
 #include <string>
 #include "producer.hpp"
 #include "consumer.hpp"
+#include "linkedlist.hpp"
 
 class Process 
 {
@@ -21,7 +22,8 @@ public:
     void save();
 
 private:
-    std::vector<std::string> sharedList;
+    // std::vector<std::string> sharedList;
+    LinkedList<std::string> sharedList;
     int current_size;
     std::string filename;
     Producer *producer;

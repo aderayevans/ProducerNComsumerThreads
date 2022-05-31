@@ -8,6 +8,7 @@
 #include <future>
 #include <condition_variable>
 #include <mutex>
+#include "linkedlist.hpp"
 
 class Producer
 {
@@ -27,7 +28,7 @@ public:
         exit_thread_flag = true;
     }
     
-    void insert(std::vector<std::string>& sharedList, 
+    void insert(LinkedList<std::string>& sharedList, 
         int& current_size,
         std::mutex& mtx,
         std::condition_variable& convar)

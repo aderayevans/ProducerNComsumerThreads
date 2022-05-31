@@ -6,7 +6,6 @@
 
 #include "process.hpp"
 #include "menuchoice.hpp"
-// #include "handlefile.hpp"
 
 const int LISTSIZE = 5;
 
@@ -128,8 +127,14 @@ void Process::extract(std::string job)
 void Process::print()
 {
     std::cout << "List size: " << sharedList.size() << std::endl;
-    for (auto &val:sharedList)
-        std::cout << val << std::endl;
+    // for (auto &val:sharedList)
+    //     std::cout << val << std::endl;
+
+    for (auto iterator = sharedList.begin();
+            iterator != sharedList.end(); iterator++)
+    {
+        std::cout << *iterator << " ";
+    }
 }
 
 void Process::read()
